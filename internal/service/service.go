@@ -1,14 +1,12 @@
 package service
 
 import (
-	"strings"
-
 	"github.com/Yandex-Practicum/go1fl-sprint6-final/pkg/morse"
 )
 
 func isMorse(in string) bool {
-	clean := strings.TrimSpace(in)
-	for _, char := range clean {
+	runes := []rune(in)
+	for _, char := range runes {
 		if char != '.' && char != '-' && char != ' ' {
 			return false
 		}

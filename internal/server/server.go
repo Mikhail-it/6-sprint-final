@@ -14,17 +14,11 @@ type Server struct {
 	HttpServer *http.Server
 }
 
-func newRouter() *chi.Mux {
+func NewServer(log *log.Logger) *Server {
 	r := chi.NewRouter()
 
 	r.Get("/", handlers.IndexHandler)
 	r.Post("/upload", handlers.UploadHandler)
-
-	return r
-}
-
-func NewServer(log *log.Logger) *Server {
-	r := newRouter()
 
 	httpServer := &http.Server{
 		Addr:         ":8080",
@@ -35,8 +29,5 @@ func NewServer(log *log.Logger) *Server {
 		IdleTimeout:  15 * time.Second,
 	}
 
-	return &Server{
-		Log:        log,
-		HttpServer: httpServer,
-	}
+	return &Server{Log: log, HttpServer: httpServer}
 }
