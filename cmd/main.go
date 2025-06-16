@@ -9,6 +9,7 @@ import (
 
 func main() {
 	logger := log.New(os.Stdout, "", log.LstdFlags)
+
 	srv := server.NewServer(logger)
 
 	if err := srv.HttpServer.ListenAndServe(); err != nil {
