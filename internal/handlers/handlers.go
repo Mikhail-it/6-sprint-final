@@ -24,12 +24,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(30 << 20)
-
-	if err := r.ParseMultipartForm(30 << 20); err != nil {
-		http.Error(w, "Ошибка при разборе формы", http.StatusBadRequest)
-		return
-	}
+	r.ParseMultipartForm(30)
 
 	file, _, err := r.FormFile("myFile")
 	if err != nil {
@@ -53,11 +48,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	err = os.WriteFile(filePath, []byte(converted), 0644)
 	if err != nil {
 		http.Error(w, "Ошибка при записи в файл", http.StatusInternalServerError)
-		return
-	}
-
-	if len(data) == 0 {
-		http.Error(w, "Загружен пустой файл", http.StatusBadRequest)
 		return
 	}
 
