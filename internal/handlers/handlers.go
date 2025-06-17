@@ -1,61 +1,55 @@
 package handlers
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/Yandex-Practicum/go1fl-sprint6-final/internal/service"
 )
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	data, err := os.ReadFile("..\\index.html")
-	if err != nil {
-		http.Error(w, "Ошибка чтения index.html", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	http.ServeFile(w, r, "index.html")
 }
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(30)
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		http.Error(w, "cannot parse form", http.StatusInternalServerError)
+		return
+	}
 
-	file, _, err := r.FormFile("myFile")
+	file, _, err := r.FormFile("file")
 	if err != nil {
-		http.Error(w, "Ошибка при получении файла", http.StatusInternalServerError)
+		http.Error(w, "cannot get file", http.StatusInternalServerError)
 		return
 	}
 	defer file.Close()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
-		http.Error(w, "Ошибка при чтении файла", http.StatusInternalServerError)
+		http.Error(w, "cannot read file", http.StatusInternalServerError)
 		return
 	}
 
-	converted := service.Convert(string(data))
-
-	fileName := fmt.Sprintf("%s%s", time.Now().UTC().Format("2006-01-02_15-04-05"), filepath.Ext("output.txt"))
-	filePath := filepath.Join("..", fileName)
-
-	err = os.WriteFile(filePath, []byte(converted), 0755)
+	converted, err := service.ConvertAutoDetect(string(data))
 	if err != nil {
-		http.Error(w, "Ошибка при записи в файл", http.StatusInternalServerError)
+		http.Error(w, "conversion failed: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(converted))
-}
+	filename := time.Now().UTC().Format("20060102_150405") + ".txt"
+	f, err := os.Create(filename)
+	if err != nil {
+		http.Error(w, "cannot create result file", http.StatusInternalServerError)
+		return
+	}
+	defer f.Close()
 
-func main() {
-	http.HandleFunc("/", IndexHandler)
-	http.HandleFunc("/upload", UploadHandler)
+	if _, err := f.WriteString(converted); err != nil {
+		http.Error(w, "cannot write to file", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte(converted))
 }

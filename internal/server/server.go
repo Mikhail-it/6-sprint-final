@@ -6,28 +6,29 @@ import (
 	"time"
 
 	"github.com/Yandex-Practicum/go1fl-sprint6-final/internal/handlers"
-	"github.com/go-chi/chi"
 )
 
-type Server struct {
-	Log        *log.Logger
-	HttpServer *http.Server
+type AppServer struct {
+	Logger *log.Logger
+	Server *http.Server
 }
 
-func NewServer(log *log.Logger) *Server {
-	r := chi.NewRouter()
+func NewServer(logger *log.Logger) *AppServer {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", handlers.IndexHandler)
+	mux.HandleFunc("/upload", handlers.UploadHandler)
 
-	r.Get("/", handlers.IndexHandler)
-	r.Post("/upload", handlers.UploadHandler)
-
-	httpServer := &http.Server{
+	s := &http.Server{
 		Addr:         ":8080",
-		Handler:      r,
-		ErrorLog:     log,
+		Handler:      mux,
+		ErrorLog:     logger,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  15 * time.Second,
 	}
 
-	return &Server{Log: log, HttpServer: httpServer}
+	return &AppServer{
+		Logger: logger,
+		Server: s,
+	}
 }
