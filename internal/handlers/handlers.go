@@ -42,9 +42,10 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	converted := service.Convert(string(data))
 
 	fileName := fmt.Sprintf("%s%s", time.Now().UTC().Format("2006-01-02_15-04-05"), filepath.Ext("output.txt"))
-	filePath := filepath.Join("..", fileName)
+	os.MkdirAll("uploads", 0755)
+	filePath := filepath.Join("uploads", fileName)
 
-	err = os.WriteFile(filePath, []byte(converted), 0755)
+	err = os.WriteFile(filePath, []byte(converted), 0644)
 	if err != nil {
 		http.Error(w, "Ошибка при записи в файл", http.StatusInternalServerError)
 		return
