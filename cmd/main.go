@@ -8,13 +8,11 @@ import (
 )
 
 func main() {
-	logger := log.New(os.Stdout, "morse: ", log.LstdFlags|log.Lshortfile)
+	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	app := server.NewServer(logger)
+	srv := server.NewServer(logger)
 
-	logger.Println("Starting servera on :8080")
-	err := app.Server.ListenAndServe()
-	if err != nil {
-		logger.Fatal(err)
+	if err := srv.HttpServer.ListenAndServe(); err != nil {
+		logger.Fatal("Ошибка при запуске сервера: ", err)
 	}
 }

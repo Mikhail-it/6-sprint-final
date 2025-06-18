@@ -5,9 +5,8 @@ import (
 )
 
 func isMorse(in string) bool {
-	runes := []rune(in)
-	for _, char := range runes {
-		if char != '.' && char != '-' && char != ' ' {
+	for i := 0; i < len(in); i++ {
+		if in[i] != '.' && in[i] != '-' && in[i] != ' ' && in[i] != '\n' && in[i] != '\r' {
 			return false
 		}
 	}
