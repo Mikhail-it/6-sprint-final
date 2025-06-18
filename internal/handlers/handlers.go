@@ -12,7 +12,7 @@ import (
 )
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	data, err := os.ReadFile(filepath.Join("static", "index.html"))
+	data, err := os.ReadFile("index.html")
 	if err != nil {
 		http.Error(w, "Ошибка чтения index.html", http.StatusInternalServerError)
 		return
